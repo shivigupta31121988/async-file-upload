@@ -1,0 +1,74 @@
+<section class="page-intro upload-intro">
+  <div>
+    <p class="eyebrow"><span class="eyebrow-dot"></span> FILE INTAKE</p>
+    <h1>Send a file.<br><span>Keep your day moving.</span></h1>
+    <p class="intro-copy">Large files stream directly to MongoDB GridFS. Once the transfer starts, keep using the app while progress stays visible in the corner.</p>
+  </div>
+  <div class="intro-art" aria-hidden="true">
+    <div class="art-orbit orbit-one"></div><div class="art-orbit orbit-two"></div>
+    <div class="art-card"><span class="art-file">↥</span><span class="art-line line-wide"></span><span class="art-line line-short"></span><span class="art-check">✓</span></div>
+    <span class="art-spark spark-one">✦</span><span class="art-spark spark-two">✧</span>
+  </div>
+</section>
+
+<div class="upload-layout">
+  <section class="panel upload-panel">
+    <div class="panel-heading">
+      <div>
+        <p class="section-kicker">NEW UPLOAD</p>
+        <h2>Choose what to send</h2>
+      </div>
+      <span class="secure-badge"><span aria-hidden="true">▣</span> Streamed to GridFS</span>
+    </div>
+
+    <form (submit)="startUpload($event)">
+      <label class="field-label" for="uploader-name">Uploaded by</label>
+      <div class="text-input-wrap">
+        <span class="input-icon" aria-hidden="true">◎</span>
+        <input id="uploader-name" type="text" maxlength="120" autocomplete="name" placeholder="Your name" [value]="uploader" (input)="uploader = $any($event.target).value" required>
+      </div>
+      <p class="field-hint">This name is saved with the upload activity. Add authentication before using this value as a trusted identity.</p>
+
+      <label class="field-label file-label" for="file-picker">File</label>
+      <label class="dropzone" [class.is-dragging]="dragging" for="file-picker" (dragover)="onDragOver($event)" (dragleave)="onDragLeave($event)" (drop)="onDrop($event)">
+        <input #fileInput id="file-picker" class="visually-hidden" type="file" (change)="onFileInput($event)">
+        <ng-container *ngIf="!selectedFile; else fileSelected">
+          <span class="drop-icon" aria-hidden="true"><svg viewBox="0 0 48 48" role="presentation"><path d="M24 32V9m0 0-8 8m8-8 8 8M9 29v9a3 3 0 0 0 3 3h24a3 3 0 0 0 3-3v-9" /></svg></span>
+          <strong>Drop a file here, or <span>browse</span></strong>
+          <small>Any file type · streamed upload · up to the server-configured limit</small>
+        </ng-container>
+        <ng-template #fileSelected>
+          <span class="selected-file-icon" aria-hidden="true">▤</span>
+          <span class="selected-file-copy"><strong>{{ selectedFile?.name }}</strong><small>{{ formatBytes(selectedFile?.size ?? 0) }}<ng-container *ngIf="selectedFile?.type"> · {{ selectedFile?.type }}</ng-container></small></span>
+          <button type="button" class="remove-file" aria-label="Remove selected file" (click)="$event.preventDefault(); $event.stopPropagation(); removeFile()">×</button>
+        </ng-template>
+      </label>
+
+      <div class="upload-actions">
+        <button class="button button-primary upload-button" type="submit" [disabled]="!selectedFile || !uploader.trim()">
+          <span aria-hidden="true">↥</span> Start background upload
+        </button>
+        <span class="button-caption">You can navigate away inside this app while it sends.</span>
+      </div>
+      <p class="form-feedback" *ngIf="message" role="status">{{ message }}</p>
+    </form>
+  </section>
+
+  <aside class="upload-aside">
+    <section class="panel how-panel">
+      <p class="section-kicker">WHAT HAPPENS NEXT</p>
+      <h2>Three quiet steps</h2>
+      <ol class="step-list">
+        <li><span class="step-number">01</span><div><strong>Pick a file</strong><p>It stays in the browser; the API streams it without loading the whole file into server memory.</p></div></li>
+        <li><span class="step-number">02</span><div><strong>Keep working</strong><p>Progress is owned by the app-wide upload service, not this page.</p></div></li>
+        <li><span class="step-number">03</span><div><strong>Find it in activity</strong><p>Uploader, extension, completion time and transfer duration are logged.</p></div></li>
+      </ol>
+      <a class="text-link" routerLink="/intake">Continue to the request form <span aria-hidden="true">→</span></a>
+    </section>
+
+    <section class="limit-note">
+      <span class="note-icon" aria-hidden="true">i</span>
+      <p><strong>Big-file friendly</strong><br>MongoDB GridFS stores the file as chunks, avoiding MongoDB's 16 MB single-document limit. The sample API limit is 5 GiB and can be changed in <code>server/.env</code>.</p>
+    </section>
+  </aside>
+</div>

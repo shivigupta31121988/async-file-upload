@@ -1,0 +1,88 @@
+openapi: 3.0.3
+info:
+  title: Async File Vault API
+  version: 1.0.0
+  description: Streaming file upload and download API backed by MongoDB GridFS.
+servers:
+  - url: http://localhost:3000
+paths:
+  /api/health:
+    get:
+      summary: Check API status
+      responses:
+        '200':
+          description: API is running and connected to MongoDB.
+  /api/uploads:
+    post:
+      summary: Stream one file into GridFS
+      description: Send multipart/form-data with a single field named file. Set x-uploader to record the uploader name.
+      parameters:
+        - in: header
+          name: x-uploader
+          schema:
+            type: string
+          description: Display name for the activity record. This is not authenticated identity.
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [file]
+              properties:
+                file:
+                  type: string
+                  format: binary
+      responses:
+        '201':
+          description: Upload stored and activity record written.
+        '400':
+          description: Invalid multipart request.
+        '413':
+          description: Configured upload size limit exceeded.
+    get:
+      summary: List recent completed uploads
+      parameters:
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            default: 50
+            minimum: 1
+            maximum: 100
+      responses:
+        '200':
+          description: Recent upload activity records.
+  /api/uploads/{id}:
+    get:
+      summary: Get one upload activity record
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Upload metadata.
+        '404':
+          description: Upload not found.
+  /api/uploads/{id}/download:
+    get:
+      summary: Download a stored file
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Original file streamed from GridFS.
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+        '404':
+          description: Upload not found.

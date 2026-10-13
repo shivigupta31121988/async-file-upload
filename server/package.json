@@ -1,0 +1,23 @@
+{
+  "name": "async-file-vault-api",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Streaming file upload API backed by MongoDB GridFS",
+  "main": "src/index.js",
+  "engines": {
+    "node": ">=20.19.0"
+  },
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js",
+    "test": "node --test"
+  },
+  "dependencies": {
+    "busboy": "^1.6.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "helmet": "^8.0.0",
+    "mongodb": "^6.12.0"
+  }
+}

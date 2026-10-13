@@ -1,0 +1,63 @@
+<section class="page-intro compact-intro">
+  <div>
+    <p class="eyebrow"><span class="eyebrow-dot"></span> REQUEST DETAILS</p>
+    <h1>Carry on with <span>the paperwork.</span></h1>
+    <p class="intro-copy">This sample intake form stays usable while an upload continues in the background. The upload status remains available in the corner on every page.</p>
+  </div>
+  <div class="form-page-badge"><span aria-hidden="true">✎</span><small>WORKSPACE<br><strong>INTAKE FORM</strong></small></div>
+</section>
+
+<div class="form-layout">
+  <section class="panel request-panel">
+    <div class="panel-heading">
+      <div><p class="section-kicker">GENERAL INFORMATION</p><h2>New request</h2></div>
+      <span class="form-step">01 <span>/ 01</span></span>
+    </div>
+
+    <div *ngIf="saved" class="success-banner" role="status">
+      <span class="success-mark" aria-hidden="true">✓</span>
+      <div><strong>Request details captured</strong><p>“{{ savedTitle }}” is ready for your next workflow step. This demo form does not persist to a server.</p></div>
+      <button type="button" class="quiet-button" (click)="onEdit()">Edit</button>
+    </div>
+
+    <form #requestForm="ngForm" (ngSubmit)="save(requestForm)" (input)="onEdit()" novalidate>
+      <div class="form-grid">
+        <div class="form-field field-span-2">
+          <label for="request-title">Request title <span class="required-star">*</span></label>
+          <input id="request-title" name="title" type="text" placeholder="e.g. Review Q4 research archive" [(ngModel)]="details.title" required maxlength="120">
+          <small *ngIf="requestForm.submitted && requestForm.controls['title']?.invalid" class="validation-message">Add a short request title.</small>
+        </div>
+        <div class="form-field">
+          <label for="requester">Requested by <span class="required-star">*</span></label>
+          <input id="requester" name="requester" type="text" placeholder="Full name" [(ngModel)]="details.requester" required maxlength="120">
+        </div>
+        <div class="form-field">
+          <label for="department">Team / department</label>
+          <input id="department" name="department" type="text" placeholder="e.g. Operations" [(ngModel)]="details.department" maxlength="120">
+        </div>
+        <div class="form-field field-span-2">
+          <label for="priority">Priority</label>
+          <select id="priority" name="priority" [(ngModel)]="details.priority">
+            <option>Low</option><option>Normal</option><option>High</option><option>Urgent</option>
+          </select>
+        </div>
+        <div class="form-field field-span-2">
+          <label for="notes">Notes <span class="optional-label">OPTIONAL</span></label>
+          <textarea id="notes" name="notes" rows="5" placeholder="Add context or next steps…" [(ngModel)]="details.notes" maxlength="2000"></textarea>
+        </div>
+      </div>
+      <div class="form-footer">
+        <span><span class="required-star">*</span> Required fields</span>
+        <button class="button button-primary" type="submit">Save request details <span aria-hidden="true">→</span></button>
+      </div>
+    </form>
+  </section>
+
+  <aside class="form-side-note">
+    <div class="side-note-icon" aria-hidden="true">↥</div>
+    <p class="section-kicker">STILL UPLOADING?</p>
+    <h2>No need to wait.</h2>
+    <p>The transfer runs in a root-level Angular service. Switch pages, fill in this form, or check the activity log; the upload progress remains in the floating status panel.</p>
+    <a routerLink="/activity" class="text-link">View upload activity <span aria-hidden="true">→</span></a>
+  </aside>
+</div>

@@ -1,0 +1,67 @@
+<header class="topbar">
+  <div class="nav-shell">
+    <a class="brand" routerLink="/upload" aria-label="File Vault home">
+      <span class="brand-mark" aria-hidden="true">F</span>
+      <span class="brand-copy"><strong>File Vault</strong><small>Large files, quietly handled</small></span>
+    </a>
+
+    <nav class="main-nav" aria-label="Main navigation">
+      <a routerLink="/upload" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Upload</a>
+      <a routerLink="/intake" routerLinkActive="active">Request form</a>
+      <a routerLink="/activity" routerLinkActive="active">Activity</a>
+    </nav>
+
+    <div class="api-indicator"><span class="indicator-dot"></span> API workspace</div>
+  </div>
+</header>
+
+<main class="page-shell">
+  <router-outlet></router-outlet>
+</main>
+
+<footer class="site-footer">
+  <div class="footer-inner">
+    <span>File Vault · Angular + Node.js + MongoDB GridFS</span>
+    <span>Upload in the background. Keep moving.</span>
+  </div>
+</footer>
+
+<ng-container *ngIf="uploads$ | async as uploads">
+  <aside *ngIf="uploads.length" class="upload-dock" [class.is-collapsed]="collapsed" aria-label="Background upload status" aria-live="polite">
+    <div class="dock-heading">
+      <div class="dock-title">
+        <span class="dock-symbol" aria-hidden="true">↑</span>
+        <span>Background uploads</span>
+        <span class="dock-count" *ngIf="activeCount(uploads) > 0">{{ activeCount(uploads) }} active</span>
+      </div>
+      <div class="dock-actions">
+        <button type="button" class="dock-text-button" (click)="clearFinished()" *ngIf="uploads.length > activeCount(uploads)">Clear finished</button>
+        <button type="button" class="dock-collapse" (click)="collapsed = !collapsed" [attr.aria-label]="collapsed ? 'Expand upload status' : 'Collapse upload status'">{{ collapsed ? '＋' : '−' }}</button>
+      </div>
+    </div>
+
+    <div class="dock-list" *ngIf="!collapsed">
+      <article class="dock-item" *ngFor="let task of uploads.slice(-4).reverse()">
+        <div class="dock-file-icon" aria-hidden="true">{{ task.status === 'complete' ? '✓' : task.status === 'error' ? '!' : '↥' }}</div>
+        <div class="dock-item-main">
+          <div class="dock-file-line"><strong [title]="task.originalFilename">{{ task.originalFilename }}</strong><span>{{ formatBytes(task.bytes) }}</span></div>
+          <div class="dock-progress-row" *ngIf="task.status === 'uploading'; else terminalStatus">
+            <div class="progress-track"><span [style.width.%]="task.progress ?? 0"></span></div>
+            <span class="progress-label">{{ task.progress === null ? 'Sending…' : task.progress + '%' }}</span>
+          </div>
+          <ng-template #terminalStatus>
+            <p class="dock-status" [class.status-error]="task.status === 'error'" [class.status-cancelled]="task.status === 'cancelled'">
+              <ng-container [ngSwitch]="task.status">
+                <span *ngSwitchCase="'complete'">Saved to MongoDB · {{ formatDuration(task.durationMs ?? 0) }}</span>
+                <span *ngSwitchCase="'error'">{{ task.error }}</span>
+                <span *ngSwitchDefault>{{ task.error }}</span>
+              </ng-container>
+            </p>
+          </ng-template>
+        </div>
+        <button *ngIf="task.status === 'uploading'" type="button" class="dock-item-action" (click)="cancel(task.id)" [attr.aria-label]="'Cancel ' + task.originalFilename">Cancel</button>
+        <button *ngIf="task.status !== 'uploading'" type="button" class="dock-dismiss" (click)="dismiss(task.id)" [attr.aria-label]="'Dismiss ' + task.originalFilename">×</button>
+      </article>
+    </div>
+  </aside>
+</ng-container>

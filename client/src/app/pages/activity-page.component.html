@@ -1,0 +1,43 @@
+<section class="page-intro activity-intro">
+  <div>
+    <p class="eyebrow"><span class="eyebrow-dot"></span> AUDIT TRAIL</p>
+    <h1>Upload <span>activity.</span></h1>
+    <p class="intro-copy">Every completed upload is recorded with its owner, file extension, size, completion time and end-to-end transfer duration.</p>
+  </div>
+  <button class="button button-secondary refresh-button" type="button" (click)="refresh()" [disabled]="loading"><span aria-hidden="true">↻</span> Refresh</button>
+</section>
+
+<section class="panel activity-panel">
+  <div class="activity-heading">
+    <div><p class="section-kicker">RECENT FILES</p><h2>Upload log <span class="record-count" *ngIf="!loading">{{ records.length }}</span></h2></div>
+    <span class="activity-legend"><span></span> Stored in MongoDB</span>
+  </div>
+
+  <div *ngIf="loading" class="loading-state"><span class="loading-spinner"></span> Loading activity…</div>
+  <div *ngIf="error && !loading" class="error-state" role="alert"><strong>Couldn’t load uploads.</strong><span>{{ error }}</span><button class="quiet-button" type="button" (click)="refresh()">Try again</button></div>
+  <div *ngIf="!loading && !error && records.length === 0" class="empty-state">
+    <span class="empty-state-icon" aria-hidden="true">▤</span><h3>No uploads yet</h3><p>Once a file finishes uploading, its activity details will appear here.</p>
+  </div>
+
+  <div class="table-scroll" *ngIf="!loading && !error && records.length > 0">
+    <table class="activity-table">
+      <thead><tr><th>FILE</th><th>UPLOADED BY</th><th>SIZE</th><th>UPLOADED AT</th><th>DURATION</th><th></th></tr></thead>
+      <tbody>
+        <tr *ngFor="let record of records; trackBy: trackById">
+          <td>
+            <div class="table-file">
+              <span class="file-type-icon" aria-hidden="true">▤</span>
+              <span><strong [title]="record.originalFilename">{{ record.originalFilename }}</strong><small>{{ record.extension || 'No extension' }} · {{ record.mimeType || 'Unknown type' }}</small></span>
+            </div>
+          </td>
+          <td><span class="uploader-name"><span>{{ (record.uploader || '?').slice(0, 1).toUpperCase() }}</span>{{ record.uploader }}</span></td>
+          <td class="table-mono">{{ formatBytes(record.bytes) }}</td>
+          <td><time [attr.datetime]="record.uploadedAt">{{ record.uploadedAt | date:'medium' }}</time></td>
+          <td><span class="duration-pill">{{ formatDuration(record.durationMs) }}</span></td>
+          <td><a class="download-link" [href]="downloadUrl(record)" [attr.download]="record.originalFilename">Download <span aria-hidden="true">↗</span></a></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="activity-footnote" *ngIf="!loading && records.length > 0"><span aria-hidden="true">i</span> Showing the latest {{ records.length }} completed upload{{ records.length === 1 ? '' : 's' }}.</div>
+</section>

@@ -1,0 +1,14 @@
+# Optional local MongoDB for development. For shared/staging/prod environments,
+# use your managed MongoDB URI in server/.env instead.
+services:
+  mongodb:
+    image: mongo:7
+    container_name: async-file-vault-mongodb
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    volumes:
+      - file-vault-mongo:/data/db
+
+volumes:
+  file-vault-mongo:
